@@ -16,8 +16,9 @@
 
 package org.apache.spark.sql.execution.datasources.hbase.examples
 
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.execution.datasources.hbase._
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 case class HBaseCompositeRecord(
     col00: String,
@@ -69,12 +70,9 @@ object CompositeKey {
                     |}""".stripMargin
 
   def main(args: Array[String]){
-    val spark = SparkSession.builder()
-      .appName("CompositeKeyExample")
-      .getOrCreate()
-
-    val sc = spark.sparkContext
-    val sqlContext = spark.sqlContext
+    val sparkConf = new SparkConf().setAppName("CompositeKeyExample")
+    val sc = new SparkContext(sparkConf)
+    val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
 
@@ -153,6 +151,6 @@ object CompositeKey {
         .select("col00", "col01","col1")
         .show
 
-    spark.stop()
+    sc.stop()
   }
 }

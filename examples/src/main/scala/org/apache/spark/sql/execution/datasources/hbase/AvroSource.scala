@@ -22,6 +22,7 @@ package org.apache.spark.sql.execution.datasources.hbase.examples
 
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql._
 import org.apache.spark.sql.execution.datasources.hbase.HBaseTableCatalog
 import org.apache.spark.sql.execution.datasources.hbase.types.AvroSerde
@@ -93,12 +94,9 @@ object AvroSource {
                               |}""".stripMargin
 
   def main(args: Array[String]) {
-    val spark = SparkSession.builder()
-      .appName("AvroExample")
-      .getOrCreate()
-
-    val sc = spark.sparkContext
-    val sqlContext = spark.sqlContext
+    val sparkConf = new SparkConf().setAppName("AvroTest")
+    val sc = new SparkContext(sparkConf)
+    val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
 
@@ -122,7 +120,7 @@ object AvroSource {
     val df = withCatalog(catalog)
     df.show
     df.printSchema()
-    df.createOrReplaceTempView("shcExampleAvrotable")
+    df.registerTempTable("shcExampleAvrotable")
     val c = sqlContext.sql("select count(1) from shcExampleAvrotable")
     c.show
 
@@ -156,6 +154,6 @@ object AvroSource {
       .select("col0", "col1.favorite_color", "col1.favorite_number")
       .show
 
-    spark.stop()
+    sc.stop()
   }
 }

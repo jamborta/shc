@@ -26,12 +26,8 @@ import org.apache.spark.sql.execution.datasources.hbase.HBaseTableCatalog
 
 class DataTypeConverter extends SHC with Logging{
   ignore("Basic setup") {
-    val spark = SparkSession.builder()
-      .master("local")
-      .appName("HBaseTest")
-      .config(conf)
-      .getOrCreate()
-    val sqlContext = spark.sqlContext
+    val sc = new SparkContext("local", "HBaseTest", conf)
+    val sqlContext = new SQLContext(sc)
 
     val complex = s"""MAP<int, struct<varchar:string>>"""
     val schema =
@@ -73,7 +69,7 @@ class DataTypeConverter extends SHC with Logging{
         $"col2" === 2.3)
       .select("col1")
     s.count()
-    df.createOrReplaceTempView("table")
+    df.registerTempTable("table")
     val c = sqlContext.sql("select count(col1) from table")
     // c.queryExecution
     c.show

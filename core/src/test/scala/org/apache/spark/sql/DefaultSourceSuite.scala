@@ -103,7 +103,7 @@ class DefaultSourceSuite extends SHC with Logging {
 
   test("empty column") {
     val df = withCatalog(catalog)
-    df.createOrReplaceTempView("table0")
+    df.registerTempTable("table0")
     val c = sqlContext.sql("select count(1) from table0").rdd.collect()(0)(0).asInstanceOf[Long]
     assert(c == 256)
   }
@@ -202,7 +202,7 @@ class DefaultSourceSuite extends SHC with Logging {
 
   test("filtered query4") {
     val df = withCatalog(catalog)
-    df.createOrReplaceTempView("table1")
+    df.registerTempTable("table1")
     val c = sqlContext.sql("select col1, col0 from table1 where col4 = 5")
     c.show()
     assert(c.count == 1)
@@ -210,7 +210,7 @@ class DefaultSourceSuite extends SHC with Logging {
 
   test("agg query") {
     val df = withCatalog(catalog)
-    df.createOrReplaceTempView("table1")
+    df.registerTempTable("table1")
     val c = sqlContext.sql("select count(col1) from table1 where col0 < 'row050'")
     c.show()
     assert(c.collect.apply(0).apply(0).asInstanceOf[Long] == 50)

@@ -16,7 +16,8 @@
 
 package org.apache.spark.sql.execution.datasources.hbase.examples
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.{DataFrame, SQLContext}
 import org.apache.spark.sql.execution.datasources.hbase.{HBaseRelation, HBaseTableCatalog}
 
 case class LRecord(
@@ -91,12 +92,9 @@ object LRJobAccessing2Clusters {
     val conf2 = args(1)
     val sleepTime = if (args.length > 2) args(2).toLong else 2 * 60 * 1000 // sleep 2 min by default
 
-    val spark = SparkSession.builder()
-      .appName("LRJobAccessing2Clusters")
-      .getOrCreate()
-
-    val sc = spark.sparkContext
-    val sqlContext = spark.sqlContext
+    val sparkConf = new SparkConf().setAppName("LRJobAccessing2Clusters")
+    val sc = new SparkContext(sparkConf)
+    val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
 

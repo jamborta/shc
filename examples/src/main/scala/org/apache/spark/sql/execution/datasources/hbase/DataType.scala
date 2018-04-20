@@ -20,7 +20,8 @@
 
 package org.apache.spark.sql.execution.datasources.hbase.examples
 
-import org.apache.spark.sql.{SparkSession, DataFrame}
+import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.{DataFrame, SQLContext}
 import org.apache.spark.sql.execution.datasources.hbase._
 
 case class IntKeyRecord(
@@ -66,12 +67,9 @@ object DataType {
                     |}""".stripMargin
 
   def main(args: Array[String]){
-    val spark = SparkSession.builder()
-      .appName("DataTypeExample")
-      .getOrCreate()
-
-    val sc = spark.sparkContext
-    val sqlContext = spark.sqlContext
+    val sparkConf = new SparkConf().setAppName("DataTypeExample")
+    val sc = new SparkContext(sparkConf)
+    val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
 
@@ -157,6 +155,6 @@ object DataType {
       throw new Exception("value invalid")
     }
 
-    spark.stop()
+    sc.stop()
   }
 }

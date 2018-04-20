@@ -16,8 +16,9 @@
 
 package org.apache.spark.sql.execution.datasources.hbase.examples
 
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.execution.datasources.hbase.{HBaseRelation, HBaseTableCatalog}
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 case class JRecord(
     col0: String,
@@ -89,12 +90,9 @@ object JoinTablesFrom2Clusters {
     val conf1 = args(0)
     val conf2 = args(1)
 
-    val spark = SparkSession.builder()
-      .appName("JoinTablesFrom2Clusters")
-      .getOrCreate()
-
-    val sc = spark.sparkContext
-    val sqlContext = spark.sqlContext
+    val sparkConf = new SparkConf().setAppName("JoinTablesFrom2Clusters")
+    val sc = new SparkContext(sparkConf)
+    val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
 

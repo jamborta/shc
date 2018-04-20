@@ -16,8 +16,9 @@
 
 package org.apache.spark.sql.execution.datasources.hbase.examples
 
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.execution.datasources.hbase._
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 case class DCRecord(
     col00: String,
@@ -69,12 +70,9 @@ object DataCoder {
                 |}""".stripMargin
 
   def main(args: Array[String]){
-    val spark = SparkSession.builder()
-      .appName("DataCoderExample")
-      .getOrCreate()
-
-    val sc = spark.sparkContext
-    val sqlContext = spark.sqlContext
+    val sparkConf = new SparkConf().setAppName("DataCoderExample")
+    val sc = new SparkContext(sparkConf)
+    val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
 

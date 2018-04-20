@@ -20,8 +20,9 @@
 
 package org.apache.spark.sql.execution.datasources.hbase.examples
 
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.execution.datasources.hbase._
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 case class HBaseRecord(
     col0: String,
@@ -83,12 +84,9 @@ object HBaseSource {
                 |}""".stripMargin
 
   def main(args: Array[String]) {
-    val spark = SparkSession.builder()
-      .appName("HBaseSourceExample")
-      .getOrCreate()
-
-    val sc = spark.sparkContext
-    val sqlContext = spark.sqlContext
+    val sparkConf = new SparkConf().setAppName("HBaseSourceExample")
+    val sc = new SparkContext(sparkConf)
+    val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
 
@@ -123,7 +121,7 @@ object HBaseSource {
       .select($"col0", $"col1").show
     df.filter($"col0" > "row250")
       .select($"col0", $"col1").show
-    df.createOrReplaceTempView("table1")
+    df.registerTempTable("table1")
     val c = sqlContext.sql("select count(col1) from table1 where col0 < 'row050'")
     c.show()
 
@@ -136,10 +134,10 @@ object HBaseSource {
       .select($"col0", $"col1").show
     df1.filter($"col0" > "row250")
       .select($"col0", $"col1").show
-    df1.createOrReplaceTempView("table1")
+    df1.registerTempTable("table1")
     val c1 = sqlContext.sql("select count(col1) from table1 where col0 < 'row050'")
     c1.show()
 
-    spark.stop()
+    sc.stop()
   }
 }

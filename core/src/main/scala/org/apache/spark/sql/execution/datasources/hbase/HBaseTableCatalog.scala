@@ -28,7 +28,7 @@ import org.json4s.jackson.JsonMethods._
 import org.apache.avro.Schema
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.catalyst.parser.CatalystSqlParser
+import org.apache.spark.sql.catalyst.util.DataTypeParser
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.execution.datasources.hbase.types._
 
@@ -102,7 +102,7 @@ case class Field(
     if (avroSchema.isDefined)
       schema.map{ x => SchemaConverters.toSqlType(x).dataType }.get
     else
-      sType.map(CatalystSqlParser.parseDataType(_)).get
+      sType.map(DataTypeParser.parse(_)).get
 
   val length: Int = {
     if (len == -1) {

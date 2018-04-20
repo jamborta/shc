@@ -30,6 +30,8 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.spark.SparkConf;
+import org.apache.spark.SparkContext;
 import org.apache.spark.sql.execution.datasources.hbase.HBaseTableCatalog;
 import org.apache.spark.sql.execution.datasources.hbase.SparkHBaseConf;
 import org.junit.After;
@@ -57,23 +59,26 @@ public class AvroKeySourceSuite {
   private final HBaseTestingUtility hBaseTestingUtility = new HBaseTestingUtility();
 
   private HBaseCluster hbase;
-  private SparkSession sparkSession;
+  private SparkContext sparkContext;
+  private SQLContext sqlContext;
 
   @Before
   public void setUp() throws Exception {
     hbase = hBaseTestingUtility.startMiniCluster();
     SparkHBaseConf.conf_$eq(hbase.getConf());
-    sparkSession = SparkSession.builder()
-      .master("local[*]")
-      .appName("TestHBaseAvroKey")
-      .config(SparkHBaseConf.testConf(), "true")
-      .getOrCreate();
+
+    SparkConf conf = new SparkConf();
+    conf.setAppName("TestHBaseAvroKey");
+    conf.setMaster("local[*]");
+    conf.set(SparkHBaseConf.testConf(), "true");
+    sparkContext = new SparkContext(conf);
+    sqlContext = new SQLContext(sparkContext);
   }
 
   @After
   public void tearDown() throws Exception {
     hBaseTestingUtility.shutdownMiniCluster();
-    sparkSession.stop();
+    sparkContext.stop();
   }
 
   public static Comparator<Row> rowComparator = new Comparator<Row>() {
@@ -89,9 +94,8 @@ public class AvroKeySourceSuite {
     writeDataToHBase(hbase);
 
     // Assert contents look as expected.
-    Dataset<Row> df = sparkSession.sqlContext().read()
-      .format("org.apache.spark.sql.execution.datasources.hbase")
-      .options(getHBaseSourceOptions()).load();
+    DataFrame df = sqlContext.read().format("org.apache.spark.sql.execution.datasources.hbase")
+            .options(getHBaseSourceOptions()).load();
     assertEquals(2, df.count());
     df.show();
     Row[] rows = (Row[])df.collect();
